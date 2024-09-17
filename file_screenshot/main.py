@@ -162,6 +162,9 @@ def main():
 
     output_dir = args.output_folder
 
+    if output_dir == "./screenshots/" and not os.path.isdir("./screenshots/"):
+        os.makedirs("./screenshots/")
+
     # Makes sure that the last char is a `/`
     # If you don't have this and use a `.` (for the CWD)
     # you'll create hidden files
