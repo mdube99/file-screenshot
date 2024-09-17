@@ -7,7 +7,7 @@ Why? I needed something that made screenshotting a lot of files easier. Are ther
 ## Usage
 
 ```
-python3 file-screenshot.py myfile [-h] [-O OUTPUT_FOLDER] [-B {firefox,chrome}] file
+python3 file-screenshot myfile [-h] [-O OUTPUT_FOLDER] [-B {firefox,chrome}] file
 
 positional arguments:
   file                  myfile
