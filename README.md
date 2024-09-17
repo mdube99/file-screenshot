@@ -4,7 +4,7 @@ File screenshotting tool written in python. In the backend it uses selenium to o
 
 Why? I needed something that made screenshotting a lot of files easier. Are there other tools out there that do this better and probably easier? Maybe, but I wanted to learn more and this does exactly what I need it to.
 
-Usage:
+## Usage
 
 ```
 python3 file-screenshot.py myfile [-h] [-O OUTPUT_FOLDER] [-B {firefox,chrome}] file
@@ -20,4 +20,12 @@ options:
                         Browser you want to use
   -M MAX_HEIGHT, --max-height MAX_HEIGHT
                         The max height of your screenshot(s)
+```
+
+## Installation
+
+Use pipx:
+
+```
+pipx install .
 ```
