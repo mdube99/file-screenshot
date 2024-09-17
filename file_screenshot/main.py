@@ -3,6 +3,7 @@ from selenium.webdriver.firefox.options import Options
 from PIL import Image
 import os
 import argparse
+import time
 
 line_height = 20
 
@@ -82,23 +83,18 @@ def screenshot(file: str, output_dir: str, browser: str) -> str:
         longest_line = max(lines, key=len)  # Find the longest line
 
     # Dynamic height based on line count
-    line_height = 16  # Assume each line requires about 20px of height
-    min_height = 200  # Minimum window height to avoid too small windows
+    min_height = 20  # Minimum window height to avoid too small windows
     # calculated_height = max(min_height, line_count * line_height)
-    calculated_height = max(min_height, line_count * line_height)
-    # calculated_height = (
-    #     driver.execute_script("return document.body.scrollHeight") * line_height
-    # )
+    calculated_height = max(min_height, (line_count + 6) * line_height)
 
     # Dynamic width based on the longest line
     char_width = (
         6  # Approximate pixel width per character (depends on font size and type)
     )
-    min_width = 800  # Minimum window width
+    min_width = 400  # Minimum window width
     calculated_width = max(min_width, len(longest_line) * char_width)
 
     # Set window width and initial height (cap it to max_height)
-    # driver.set_window_size(calculated_width, min(max_height, calculated_height))
     driver.set_window_size(calculated_width, calculated_height)
 
     # Load the file as source in browser
@@ -107,6 +103,7 @@ def screenshot(file: str, output_dir: str, browser: str) -> str:
 
     # Adjust zoom level if necessary
     driver.execute_script("document.body.style.zoom='125%'")
+    driver.execute_script("document.body.style.lineHeight = '16px';")
 
     if "/" in file:
         file = file.split("/")[-1]
@@ -131,7 +128,7 @@ def main():
         "--output-folder",
         action="store",
         help="Output folder",
-        default="./screenshots/",
+        default="./",
         required=False,
     )
     parser.add_argument(
@@ -161,9 +158,6 @@ def main():
     args = parser.parse_args()
 
     output_dir = args.output_folder
-
-    if output_dir == "./screenshots/" and not os.path.isdir("./screenshots/"):
-        os.makedirs("./screenshots/")
 
     # Makes sure that the last char is a `/`
     # If you don't have this and use a `.` (for the CWD)
