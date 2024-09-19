@@ -3,7 +3,6 @@ from selenium.webdriver.firefox.options import Options
 from PIL import Image
 import os
 import argparse
-import time
 
 line_height = 20
 
@@ -57,7 +56,7 @@ def split_image_vertically(image_path: str, max_height: int, output_dir: str) ->
     print(f"[+] Split screenshot '{image_path}' into {len(split_images)} parts.")
 
 
-def screenshot(file: str, output_dir: str, browser: str) -> str:
+def screenshot(file: str, output_dir: str, browser: str, color=True) -> str:
     # Get absolute file path
     file = os.path.abspath(file)
 
@@ -92,7 +91,7 @@ def screenshot(file: str, output_dir: str, browser: str) -> str:
         6  # Approximate pixel width per character (depends on font size and type)
     )
     min_width = 400  # Minimum window width
-    calculated_width = max(min_width, len(longest_line) * char_width)
+    calculated_width = max(min_width, (len(longest_line) + 20) * char_width)
 
     # Set window width and initial height (cap it to max_height)
     driver.set_window_size(calculated_width, calculated_height)
@@ -100,6 +99,34 @@ def screenshot(file: str, output_dir: str, browser: str) -> str:
     # Load the file as source in browser
     url = f"{source}file://{file}"
     driver.get(url)
+    if color:
+        # turns list into string
+        readable_lines = "".join(lines)
+
+        # Create an HTML file with syntax highlighting using Highlight.js
+        highlighted_html = f"""
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Highlighted Source Code</title>
+            <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+
+            <script>hljs.highlightAll();</script>
+        </head>
+        <body>
+            <pre><code class="prettyprint">{readable_lines}</code></pre>
+        </body>
+        </html>
+        """
+
+        path = "/tmp/view-source-highlighted.html"
+        f = open(path, "w")
+        f.write(highlighted_html)
+        f.close()
+        # Save the highlighted HTML to a file
+        driver.get(f"file://{path}")
 
     # Adjust zoom level if necessary
     driver.execute_script("document.body.style.zoom='125%'")
@@ -155,6 +182,13 @@ def main():
         default=False,
         required=False,
     )
+    parser.add_argument(
+        "--color",
+        action="store_true",
+        help="Whether to use syntax highlighting for code",
+        default=False,
+        required=False,
+    )
     args = parser.parse_args()
 
     output_dir = args.output_folder
@@ -171,13 +205,13 @@ def main():
         for file in args.file:
             try:
                 print(f"[+] Grabbing screenshot of '{file}'")
-                screenshot_loc = screenshot(file, output_dir, args.browser)
+                screenshot_loc = screenshot(file, output_dir, args.browser, args.color)
             except Exception as e:
                 print("Error, likely file is too small or does not exist", e)
 
     else:
         print(f"[+] Grabbing screenshot of '{args.file}'")
-        screenshot_loc = screenshot(args.file, output_dir, args.browser)
+        screenshot_loc = screenshot(args.file, output_dir, args.browser, args.color)
 
     if args.split:
         # Example usage
